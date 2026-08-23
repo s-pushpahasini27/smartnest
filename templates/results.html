@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Results - SmartNest India</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="results-page">
+    <header class="simple-header">
+        <h1>SmartNest</h1>
+        <a href="/" class="back-btn">New Search</a>
+    </header>
+
+    <main class="container">
+        <div class="results-header">
+            <h2>
+                Found <strong>{{ properties|length }}</strong> 
+                {% if properties|length == 1 %}Property{% else %}Properties{% endif %}
+            </h2>
+            <p class="filter-summary">
+                {% if request.form.state or request.form.city or request.form.price_range %}
+                    in 
+                    <strong>
+                        {{ request.form.state or 'Any State' }}
+                        {% if request.form.city %}, {{ request.form.city }}{% endif %}
+                    </strong>
+                    {% if request.form.price_range %}
+                        • Price: <strong>
+                            {% if '0-15000000' in request.form.price_range %}Up to 1.5 Cr
+                            {% elif '15000000-25000000' in request.form.price_range %}1.5 Cr – 2.5 Cr
+                            {% elif '25000000-50000000' in request.form.price_range %}2.5 Cr – 5 Cr
+                            {% else %}Above 5 Cr{% endif %}
+                        </strong>
+                    {% endif %}
+                {% endif %}
+            </p>
+        </div>
+
+        <div class="property-grid">
+            {% for prop in properties %}
+            <div class="property-card">
+                <img src="{{ prop.image }}" alt="{{ prop.title }}" loading="lazy">
+                <div class="card-content">
+                    <h3>{{ prop.title }}</h3>
+                    <p class="location"><i class="fas fa-map-marker-alt"></i> {{ prop.location }}</p>
+                    <p class="price">₹{{ (prop.price // 100000) }} Lakh</p>
+                    <div class="specs">
+                        <span><i class="fas fa-bed"></i> {{ prop.bedrooms }}</span>
+                        <span><i class="fas fa-bath"></i> {{ prop.bathrooms }}</span>
+                        <span><i class="fas fa-ruler-combined"></i> {{ prop.area }} sqft</span>
+                    </div>
+                    <a href="{{ url_for('property_detail', prop_id=prop.id) }}" class="btn">View Details</a>
+                </div>
+            </div>
+            {% else %}
+            <div class="no-results">
+                <i class="fas fa-home-slash"></i>
+                <h3>No properties found</h3>
+                <p>Try adjusting your filters or search in another state.</p>
+                <a href="/" class="btn">Start New Search</a>
+            </div>
+            {% endfor %}
+        </div>
+    </main>
+
+    <footer>
+        <p>© 2025 SmartNest India</p>
+    </footer>
+</body>
+</html>

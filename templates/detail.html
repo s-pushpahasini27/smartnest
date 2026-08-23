@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ property.title }} - SmartNest</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="detail-page">
+    <header class="simple-header">
+        <h1>SmartNest</h1>
+        <a href="/" class="back-btn">Back to Search</a>
+    </header>
+
+    <main class="container">
+        <div class="detail-card">
+            <!-- Image -->
+            <div class="detail-img-container">
+                <img src="{{ property.image }}" alt="{{ property.title }}" class="detail-img">
+            </div>
+
+            <!-- Info -->
+            <div class="detail-info">
+                <h1>{{ property.title }}</h1>
+                <p class="location"><i class="fas fa-map-marker-alt"></i> {{ property.location }}</p>
+                <p class="price-big">₹{{ (property.price // 100000) }} Lakh</p>
+
+                <!-- Specs -->
+                <div class="specs-detail">
+                    <div class="spec-item">
+                        <i class="fas fa-bed"></i> {{ property.bedrooms }} Bedroom{{ 's' if property.bedrooms > 1 else '' }}
+                    </div>
+                    <div class="spec-item">
+                        <i class="fas fa-bath"></i> {{ property.bathrooms }} Bathroom{{ 's' if property.bathrooms > 1 else '' }}
+                    </div>
+                    <div class="spec-item">
+                        <i class="fas fa-ruler-combined"></i> {{ property.area }} sqft
+                    </div>
+                </div>
+
+                <!-- Description -->
+                <div class="section">
+                    <h3>Description</h3>
+                    <p>{{ property.description|default("No description available.", true) }}</p>
+                </div>
+
+                <!-- Neighborhood -->
+                <div class="section">
+                    <h3>Neighborhood Insights</h3>
+                    <p>{{ property.neighborhood|default("Prime location with good connectivity.", true) }}</p>
+                </div>
+
+                <!-- Market Trends -->
+                <div class="section">
+                    <h3>Market Trends</h3>
+                    <p><strong>{{ property.trends|default("Stable market with good appreciation.", true) }}</strong></p>
+                </div>
+
+                <!-- EMI Estimate -->
+                <div class="emi-box">
+                    <i class="fas fa-calculator"></i>
+                    <strong>Estimated EMI:</strong>
+                    <span id="detail-emi">Calculating...</span>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="actions">
+                    <button class="contact-btn">
+                        Contact Agent
+                    </button>
+                    <button class="save-btn" onclick="alert('Saved to favorites!')">
+                        Save
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>© 2025 SmartNest India</p>
+    </footer>
+
+    <!-- EMI Calculation Script -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const price = {{ property.price }};
+            const months = 240; // 20 years
+            const rate = 8.5 / 100 / 12; // 8.5% annual
+            const emi = (price * rate * Math.pow(1 + rate, months)) / (Math.pow(1 + rate, months) - 1);
+            document.getElementById("detail-emi").textContent = "₹" + Math.round(emi).toLocaleString("en-IN") + "/month";
+        });
+    </script>
+</body>
+</html>

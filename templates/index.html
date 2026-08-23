@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartNest India - Find Your Dream Home</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="hero">
+        <div class="overlay"></div>
+
+        <header>
+            <h1 style="color: #fff; text-shadow: 0 3px 15px rgba(0,0,0,0.4); font-size: 3.8rem; letter-spacing: 1px;">
+                SmartNest India
+            </h1>
+            <p style="color: #ffeb3b; font-weight: 600; text-shadow: 0 1px 5px rgba(0,0,0,0.3);">
+                Find your dream home in just 3 clicks
+            </p>
+        </header>
+
+        <div class="search-container">
+            <form method="POST" class="search-form" id="searchForm">
+                <!-- STATE -->
+                <div class="input-group">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <select name="state" id="state" onchange="updateCities()" required>
+                        <option value="">Select State</option>
+                        <option value="Maharashtra">Maharashtra</option>
+                        <option value="Karnataka">Karnataka</option>
+                        <option value="Tamil Nadu">Tamil Nadu</option>
+                        <option value="Gujarat">Gujarat</option>
+                        <option value="Rajasthan">Rajasthan</option>
+                    </select>
+                </div>
+
+                <!-- CITY -->
+                <div class="input-group">
+                    <i class="fas fa-city"></i>
+                    <select name="city" id="city" required>
+                        <option value="">All Cities</option>
+                    </select>
+                </div>
+
+                <!-- PRICE -->
+                <div class="input-group">
+                    <i class="fas fa-rupee-sign"></i>
+                    <select name="price_range" required>
+                        <option value="">Any Price</option>
+                        <option value="0-15000000">Up to 1.5 Cr</option>
+                        <option value="15000000-25000000">1.5 Cr – 2.5 Cr</option>
+                        <option value="25000000-50000000">2.5 Cr – 5 Cr</option>
+                        <option value="50000000-999999999">Above 5 Cr</option>
+                    </select>
+                </div>
+
+                <button type="submit">Search</button>
+            </form>
+
+            <!-- HIDDEN (as requested) -->
+            <div class="live-count" style="display: none;"><span id="count">0</span> properties</div>
+            <div class="emi-hint" style="display: none;">EMI: <span id="emi">Select price</span></div>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2025 SmartNest India — Made with Love</p>
+    </footer>
+
+    <!-- ONLY cityOptions needed -->
+    <script>
+        const cityOptions = {
+            "Maharashtra": ["Mumbai", "Pune", "Nagpur"],
+            "Karnataka": ["Bangalore", "Mysore", "Mangalore"],
+            "Tamil Nadu": ["Chennai", "Coimbatore", "Madurai"],
+            "Gujarat": ["Ahmedabad", "Surat", "Vadodara"],
+            "Rajasthan": ["Jaipur", "Udaipur", "Jodhpur"]
+        };
+
+        function updateCities() {
+            const state = document.getElementById("state").value;
+            const citySelect = document.getElementById("city");
+            citySelect.innerHTML = '<option value="">All Cities</option>';
+
+            if (state && cityOptions[state]) {
+                cityOptions[state].forEach(city => {
+                    const opt = document.createElement("option");
+                    opt.value = city;
+                    opt.textContent = city;
+                    citySelect.appendChild(opt);
+                });
+            }
+        }
+
+        // Optional: Auto-update on load if needed
+        window.onload = updateCities;
+    </script>
+</body>
+</html>
