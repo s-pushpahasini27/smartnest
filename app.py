@@ -161,6 +161,17 @@ def property_detail(prop_id):
     return render_template('detail.html', property=prop, filters=filters)
 
 
+@app.get('/sign-in')
+@app.get('/login')
+def login():
+    return render_template('auth.html', signup=False)
+
+
+@app.get('/signup')
+def signup():
+    return render_template('auth.html', signup=True)
+
+
 @app.errorhandler(404)
 def not_found(error):
     return render_template('404.html'), 404
