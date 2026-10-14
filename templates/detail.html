@@ -1,96 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ property.title }} - SmartNest</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-</head>
-<body class="detail-page">
-    <header class="simple-header">
-        <h1>SmartNest</h1>
-        <a href="/" class="back-btn">Back to Search</a>
-    </header>
-
-    <main class="container">
-        <div class="detail-card">
-            <!-- Image -->
-            <div class="detail-img-container">
-                <img src="{{ property.image }}" alt="{{ property.title }}" class="detail-img">
-            </div>
-
-            <!-- Info -->
-            <div class="detail-info">
-                <h1>{{ property.title }}</h1>
-                <p class="location"><i class="fas fa-map-marker-alt"></i> {{ property.location }}</p>
-                <p class="price-big">₹{{ (property.price // 100000) }} Lakh</p>
-
-                <!-- Specs -->
-                <div class="specs-detail">
-                    <div class="spec-item">
-                        <i class="fas fa-bed"></i> {{ property.bedrooms }} Bedroom{{ 's' if property.bedrooms > 1 else '' }}
-                    </div>
-                    <div class="spec-item">
-                        <i class="fas fa-bath"></i> {{ property.bathrooms }} Bathroom{{ 's' if property.bathrooms > 1 else '' }}
-                    </div>
-                    <div class="spec-item">
-                        <i class="fas fa-ruler-combined"></i> {{ property.area }} sqft
-                    </div>
-                </div>
-
-                <!-- Description -->
-                <div class="section">
-                    <h3>Description</h3>
-                    <p>{{ property.description|default("No description available.", true) }}</p>
-                </div>
-
-                <!-- Neighborhood -->
-                <div class="section">
-                    <h3>Neighborhood Insights</h3>
-                    <p>{{ property.neighborhood|default("Prime location with good connectivity.", true) }}</p>
-                </div>
-
-                <!-- Market Trends -->
-                <div class="section">
-                    <h3>Market Trends</h3>
-                    <p><strong>{{ property.trends|default("Stable market with good appreciation.", true) }}</strong></p>
-                </div>
-
-                <!-- EMI Estimate -->
-                <div class="emi-box">
-                    <i class="fas fa-calculator"></i>
-                    <strong>Estimated EMI:</strong>
-                    <span id="detail-emi">Calculating...</span>
-                </div>
-
-                <!-- Action Buttons -->
-                <div class="actions">
-                    <button class="contact-btn">
-                        Contact Agent
-                    </button>
-                    <button class="save-btn" onclick="alert('Saved to favorites!')">
-                        Save
-                    </button>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <footer>
-        <p>© 2025 SmartNest India</p>
-    </footer>
-
-    <!-- EMI Calculation Script -->
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const price = {{ property.price }};
-            const months = 240; // 20 years
-            const rate = 8.5 / 100 / 12; // 8.5% annual
-            const emi = (price * rate * Math.pow(1 + rate, months)) / (Math.pow(1 + rate, months) - 1);
-            document.getElementById("detail-emi").textContent = "₹" + Math.round(emi).toLocaleString("en-IN") + "/month";
-        });
-    </script>
-</body>
-</html>
+{% extends 'base.html' %}
+{% block title %}{{ property.title }} — SmartNest{% endblock %}
+{% block content %}
+<div class="wrap detail-page"><a class="text-link breadcrumb" href="{{ url_for('index', browse=1, **filters) }}">← Back to homes</a>
+<div class="detail-heading"><div><p class="eyebrow">{{ property.location }}</p><h1>{{ property.title }}</h1></div><button class="button outline" data-save="{{ property.id }}" aria-pressed="false" data-save-label>♡ Save home</button></div>
+<div class="detail-layout"><div><div class="detail-image"><img src="{{ property.image }}" alt="{{ property.title }}" width="1000" height="700" data-property-image></div><div class="detail-specs"><div><strong>{{ property.bedrooms }}</strong><span>Bedrooms</span></div><div><strong>{{ property.bathrooms }}</strong><span>Bathrooms</span></div><div><strong>{{ '{:,}'.format(property.area) }}</strong><span>Square feet</span></div></div>
+<section class="detail-section"><p class="eyebrow">THE LITTLE DETAILS</p><h2>A closer look.</h2><p>{{ property.description }}</p></section>
+<section class="detail-section"><h2>Life in the neighbourhood.</h2><p>{{ property.neighborhood|default('Neighbourhood information is not yet available.', true) }}</p></section>
+<section class="detail-section"><h2>From the listing.</h2><p>{{ property.trends }}</p><small class="muted">Sample catalogue information. Market figures have not been independently verified.</small></section></div>
+<aside><div class="price-panel"><p class="eyebrow">ASKING PRICE</p><p class="price-big">{{ property.price|money }}</p><p class="muted">₹{{ '{:,.0f}'.format(property.price / property.area) }} per sq ft</p><hr><h2>Plan your monthly payment.</h2>
+<form id="emi-form" data-price="{{ property.price }}"><label>Down payment (%)<input id="down-payment" type="number" min="0" max="100" step="1" value="20" required></label><div class="input-pair"><label>Interest (% p.a.)<input id="interest" type="number" min="0" max="30" step="0.1" value="8.5" required></label><label>Term (years)<input id="years" type="number" min="1" max="40" value="20" required></label></div><button class="button" type="submit">Calculate payment</button></form><output id="emi" aria-live="polite"></output><small class="muted">Illustrative estimate; excludes fees, taxes and insurance.</small><hr><p class="muted">This is a sample listing. Agent contact and viewing bookings are not available.</p><button class="button outline" id="share-home" type="button">Share this home ↗</button></div></aside></div></div>
+{% endblock %}
