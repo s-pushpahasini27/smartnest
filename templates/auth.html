@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block title %}{{ 'Sign up' if signup else 'Log in' }} — SmartNest{% endblock %}
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='auth.css') }}">
+<script src="{{ url_for('static', filename='auth.js') }}" defer></script>
+{% endblock %}
+{% block content %}
+<section class="auth-layout wrap">
+<aside class="auth-story" aria-label="Welcome to SmartNest">
+<p class="eyebrow">A PLACE TO BEGIN AGAIN</p><h2>Your next chapter<br>starts <em>at home.</em></h2>
+<div class="auth-illustration" aria-hidden="true"><div class="auth-sun"></div><div class="auth-roof"></div><div class="auth-house"><span></span><i></i><span></span></div><div class="auth-hill"></div></div>
+<p>Every new beginning deserves<br>a place that feels like you.</p><span class="auth-story-note">45 homes. 15 cities. Your possibilities.</span>
+</aside>
+<div class="auth-card">
+<a class="auth-back text-link" href="{{ url_for('index') }}">← Back to home</a>
+<p class="eyebrow">{{ 'MAKE YOURSELF AT HOME' if signup else 'GOOD TO SEE YOU AGAIN' }}</p>
+<h1>{{ 'A fresh start.' if signup else 'Welcome home.' }}</h1>
+<p class="auth-intro">{{ 'Create your SmartNest account.' if signup else 'Log in to your SmartNest account.' }}</p>
+<div class="auth-tabs" aria-label="Account pages"><a href="{{ url_for('login') }}" {% if not signup %}aria-current="page"{% endif %}>Log in</a><a href="{{ url_for('signup') }}" {% if signup %}aria-current="page"{% endif %}>Sign up</a></div>
+<p class="auth-preview" id="preview-note">Design preview · Accounts aren’t connected yet. Use sample details to try the form.</p>
+<form id="auth-form" aria-describedby="preview-note">
+{% if signup %}<label for="full-name">Full name</label><input id="full-name" type="text" autocomplete="name" placeholder="Your full name" required maxlength="100">{% endif %}
+<label for="email">Email address</label><input id="email" type="email" autocomplete="email" placeholder="you@example.com" required maxlength="254">
+<div class="password-label"><label for="password">Password</label><button type="button" class="password-toggle" aria-controls="password" aria-pressed="false">Show password</button></div>
+<input id="password" type="password" autocomplete="{{ 'new-password' if signup else 'current-password' }}" placeholder="{{ 'Create a password' if signup else 'Enter your password' }}" required {% if signup %}minlength="8" aria-describedby="password-hint"{% endif %}>
+{% if signup %}<small id="password-hint" class="auth-hint">Use at least 8 characters.</small>
+<label for="confirm-password">Confirm password</label><input id="confirm-password" type="password" autocomplete="new-password" placeholder="Enter your password again" required minlength="8">
+{% endif %}
+<button class="button auth-submit" type="submit" disabled>{{ 'Create account' if signup else 'Log in' }} <span aria-hidden="true">↗</span></button>
+<p id="auth-feedback" class="auth-feedback" role="status" aria-live="polite" tabindex="-1" hidden></p>
+<noscript><p>Please enable JavaScript to preview this form. Account access is not available yet.</p></noscript>
+</form>
+<p class="auth-switch">{{ 'Already have an account?' if signup else 'New to SmartNest?' }} <a href="{{ url_for('login') if signup else url_for('signup') }}">{{ 'Log in' if signup else 'Create an account' }} ↗</a></p>
+<a class="auth-guest" href="{{ url_for('index', browse=1) }}">Just looking? Explore homes as a guest →</a>
+</div>
+</section>
+{% endblock %}
