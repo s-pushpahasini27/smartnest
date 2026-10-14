@@ -1,6 +1,5 @@
 # SmartNest India
 
-A responsive Flask property catalogue with 45 sample homes across 15 Indian cities.
 
 ## Run locally
 
