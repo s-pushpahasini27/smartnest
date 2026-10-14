@@ -15,8 +15,6 @@ SmartNest makes finding your next home simpler. Explore property listings, narro
 - **Browse comfortably** — Responsive layouts, labelled inputs, keyboard focus indicators, empty states and image fallbacks.
 - **Preview account pages** — Matching login and sign-up screens with email validation, password visibility and password confirmation.
 
-> **Account pages are UI previews.** They do not create accounts or log users in. Entered credentials are neither submitted nor stored.
-
 ## Getting started
 
 ### Requirements
