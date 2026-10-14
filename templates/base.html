@@ -6,12 +6,13 @@
 <title>{% block title %}SmartNest — A place to call yours{% endblock %}</title>
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 <script src="{{ url_for('static', filename='app.js') }}" defer></script>
+{% block extra_head %}{% endblock %}
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to content</a>
 <header class="site-header wrap">
 <a class="brand" href="{{ url_for('index') }}" aria-label="SmartNest home"><span class="brand-icon" aria-hidden="true">⌂</span>smartnest<span class="brand-dot">.</span></a>
-<nav aria-label="Main navigation"><a href="{{ url_for('index', browse=1) }}">Explore homes</a><a href="{{ url_for('index', browse=1, saved=1) }}">Saved homes <span class="saved-count">0</span></a></nav>
+<nav aria-label="Main navigation"><a href="{{ url_for('index', browse=1) }}">Explore homes</a><a href="{{ url_for('index', browse=1, saved=1) }}">Saved homes <span class="saved-count">0</span></a><a class="nav-login" href="{{ url_for('login') }}">Log in <span aria-hidden="true">↗</span></a></nav>
 </header>
 <main id="main">{% block content %}{% endblock %}</main>
 <footer class="wrap footer"><a class="brand" href="{{ url_for('index') }}">smartnest.</a><p>A little closer to your next chapter.</p><small>Sample property catalogue · India</small></footer>
