@@ -41,7 +41,7 @@ properties = [
     {'id': 21, 'title': 'T Nagar Flat', 'location': 'Chennai, Tamil Nadu', 'price': 13800000, 'bedrooms': 2, 'bathrooms': 2, 'area': 1150, 'image': 'https://r1imghtlak.mmtcdn.com/98e9fcccf3b911ebb30f0a58a9feac02.jpg', 'description': 'Shopping paradise location.', 'neighborhood': 'T Nagar – silk sarees, markets, temples.', 'trends': 'Commercial hub, 9% growth.'},
 
     # COIMBATORE (3)
-    {'id': 22, 'title': 'RS Puram Villa', 'location': 'Coimbatore, Tamil Nadu', 'price': 16800000, 'bedrooms': 4, 'bathrooms': 3, 'area': 2000, 'image': 'https://media-cdn.tripadvisor.com/media/photo-s/07/5d/49/94/cornerstay-serviced-apartment.jpg', 'description': 'Elegant villa in green area.', 'nehttps://media-cdn.tripadvisor.com/media/photo-s/08/3d/ca/d4/guest-room.jpgighborhood': 'RS Puram – hospitals, schools, malls.', 'trends': 'Industrial city, 8% rise.'},
+    {'id': 22, 'title': 'RS Puram Villa', 'location': 'Coimbatore, Tamil Nadu', 'price': 16800000, 'bedrooms': 4, 'bathrooms': 3, 'area': 2000, 'image': 'https://media-cdn.tripadvisor.com/media/photo-s/07/5d/49/94/cornerstay-serviced-apartment.jpg', 'description': 'Elegant villa in green area.', 'neighborhood': 'RS Puram – hospitals, schools, malls.', 'trends': 'Industrial city, 8% rise.'},
     {'id': 23, 'title': 'Peelamedu 3BHK', 'location': 'Coimbatore, Tamil Nadu', 'price': 9800000, 'bedrooms': 3, 'bathrooms': 2, 'area': 1350, 'image': 'https://i.pinimg.com/originals/60/89/96/608996c5d86cfc8994d12ae87a06602f.jpg', 'description': 'Airport proximity flat.', 'neighborhood': 'Peelamedu – airport, IT parks.', 'trends': 'Aviation growth, 7% YoY.'},
     {'id': 24, 'title': 'Gandhipuram Studio', 'location': 'Coimbatore, Tamil Nadu', 'price': 6800000, 'bedrooms': 1, 'bathrooms': 1, 'area': 620, 'image': 'https://i.ytimg.com/vi/YgS9KHHUzRc/hqdefault.jpg', 'description': 'Central business district studio.', 'neighborhood': 'Gandhipuram – bus stand, markets.', 'trends': 'Commercial, 6% growth.'},
 
@@ -81,37 +81,101 @@ properties = [
     {'id': 45, 'title': 'Shastri Nagar Studio', 'location': 'Jodhpur, Rajasthan', 'price': 6200000, 'bedrooms': 1, 'bathrooms': 1, 'area': 580, 'image': 'https://ashapurna.com/blog/wp-content/uploads/2022/08/WhatsApp-Image-2022-08-20-at-6.43.29-PM-2-640x482.jpeg', 'description': 'Compact studio for travelers.', 'neighborhood': 'Shastri Nagar – hostels, cafes.', 'trends': 'Tourist area, 5% growth.'},
 ]
 
+
+CITIES = {}
+for prop in properties:
+    city, state = prop['location'].split(', ')
+    CITIES.setdefault(state, [])
+    if city not in CITIES[state]:
+        CITIES[state].append(city)
+
+BUDGETS = {
+    '0-15000000': 'Up to ₹1.5 Cr',
+    '15000000-25000000': '₹1.5–2.5 Cr',
+    '25000000-50000000': '₹2.5–5 Cr',
+    '50000000-999999999': 'Above ₹5 Cr',
+}
+SORTS = {'featured': 'Featured', 'price_asc': 'Price: low to high',
+         'price_desc': 'Price: high to low', 'area_desc': 'Largest first'}
+
+
+@app.template_filter('money')
+def money(value):
+    amount, unit = (value / 10000000, 'Cr') if value >= 10000000 else (value / 100000, 'Lakh')
+    return f"₹{amount:.2f}".rstrip('0').rstrip('.') + f" {unit}"
+
+
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
-        state = request.form.get('state', '')
-        city = request.form.get('city', '')
-        price_range = request.form.get('price_range', '')
+        from flask import redirect, url_for
+        return redirect(url_for('index', browse=1, **{
+            key: request.form.get(key, '')
+            for key in ('state', 'city', 'price_range')
+        }), code=303)
+    filters = {key: request.args.get(key, '').strip()
+               for key in ('state', 'city', 'price_range', 'bedrooms', 'sort')}
+    if filters['state'] not in CITIES:
+        filters['state'] = ''
+    valid_cities = CITIES.get(filters['state'], [c for names in CITIES.values() for c in names])
+    if filters['city'] not in valid_cities:
+        filters['city'] = ''
+    if filters['price_range'] not in BUDGETS:
+        filters['price_range'] = ''
+    if filters['bedrooms'] not in ('1', '2', '3', '4'):
+        filters['bedrooms'] = ''
+    if filters['sort'] not in SORTS:
+        filters['sort'] = 'featured'
+    saved_only = request.args.get('saved') == '1'
+    if saved_only:
+        filters['saved'] = '1'
+    browsing = request.args.get('browse') == '1' or saved_only or any(
+        filters[k] for k in ('state', 'city', 'price_range', 'bedrooms'))
+    low, high = (map(int, filters['price_range'].split('-'))
+                 if filters['price_range'] else (0, float('inf')))
+    filtered = [p for p in properties
+                if (not filters['state'] or p['location'].split(', ')[1] == filters['state'])
+                and (not filters['city'] or p['location'].split(', ')[0] == filters['city'])
+                and (not filters['bedrooms'] or p['bedrooms'] == int(filters['bedrooms']))
+                and low <= p['price'] <= high]
+    if filters['sort'] != 'featured':
+        key = 'area' if filters['sort'] == 'area_desc' else 'price'
+        filtered = sorted(filtered, key=lambda p: p[key],
+                          reverse=filters['sort'] in ('price_desc', 'area_desc'))
+    return render_template('results.html' if browsing else 'index.html',
+                           properties=filtered, featured=[properties[i] for i in (0, 4, 9)],
+                           total=len(properties), city_count=sum(map(len, CITIES.values())),
+                           cities=CITIES, budgets=BUDGETS, sorts=SORTS,
+                           filters=filters, browsing=browsing, saved_only=saved_only)
 
-        min_price, max_price = 0, float('inf')
-        if price_range and '-' in price_range:
-            min_str, max_str = price_range.split('-')
-            min_price = int(min_str)
-            max_price = int(max_str)
-        elif price_range and int(price_range.split('-')[0]) >= 50000000:
-            min_price = 50000000
-
-        filtered = [
-            p for p in properties
-            if (not state or state in p['location']) and
-               (not city or city in p['location']) and
-               min_price <= p['price'] <= max_price
-        ]
-        return render_template('results.html', properties=filtered)
-
-    return render_template('index.html')
 
 @app.route('/property/<int:prop_id>')
 def property_detail(prop_id):
+    from flask import abort
     prop = next((p for p in properties if p['id'] == prop_id), None)
-    if prop:
-        return render_template('detail.html', property=prop)
-    return 'Property not found', 404
+    if prop is None:
+        abort(404)
+    filters = {k: request.args.get(k, '') for k in
+               ('state', 'city', 'price_range', 'bedrooms', 'sort', 'saved')
+               if request.args.get(k)}
+    return render_template('detail.html', property=prop, filters=filters)
+
+
+@app.get('/sign-in')
+@app.get('/login')
+def login():
+    return render_template('auth.html', signup=False)
+
+
+@app.get('/signup')
+def signup():
+    return render_template('auth.html', signup=True)
+
+
+@app.errorhandler(404)
+def not_found(error):
+    return render_template('404.html'), 404
+
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
