@@ -1,0 +1,11 @@
+<form class="search-form" action="{{ url_for('index') }}" method="get">
+<input type="hidden" name="browse" value="1">
+{% if saved_only %}<input type="hidden" name="saved" value="1">{% endif %}
+<label>State<select id="state" name="state"><option value="">All states</option>{% for state in cities %}<option {% if filters.state == state %}selected{% endif %}>{{ state }}</option>{% endfor %}</select></label>
+<label>City<select id="city" name="city"><option value="">All cities</option>{% for state, names in cities.items() %}<optgroup label="{{ state }}">{% for city in names %}<option {% if filters.city == city %}selected{% endif %}>{{ city }}</option>{% endfor %}</optgroup>{% endfor %}</select></label>
+<label>Budget<select name="price_range"><option value="">Any budget</option>{% for value, label in budgets.items() %}<option value="{{ value }}" {% if filters.price_range == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></label>
+{% if browsing %}<label>Bedrooms<select name="bedrooms"><option value="">Any size</option>{% for n in range(1, 5) %}<option value="{{ n }}" {% if filters.bedrooms == n|string %}selected{% endif %}>{{ n }} bedroom{{ 's' if n > 1 }}</option>{% endfor %}</select></label>
+<label>Sort by<select name="sort">{% for value, label in sorts.items() %}<option value="{{ value }}" {% if filters.sort == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></label>{% endif %}
+<button class="button" type="submit">Find homes <span aria-hidden="true">↗</span></button>
+</form>
+<script id="cities-data" type="application/json">{{ cities|tojson }}</script>
